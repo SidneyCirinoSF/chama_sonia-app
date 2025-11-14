@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Chamado - ChamaSonia</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-layout">
+        
+        <aside class="sidebar">
+            <h2 class="logo-text">ChamaSonia</h2>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'ticket:home' %}" class="nav-button">
+                    🏠 Voltar para Home
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <h1 class="page-title">Editar Chamado</h1>
+            
+            <div class="card form-card">
+                <form method="POST" class="default-form">
+                    {% csrf_token %}
+                    
+                    <div class="input-group">
+                        <input type="text" id="titulo" name="titulo" value="{{ ticket.titulo }}" required>
+                        <label for="titulo">Título do Chamado</label>
+                    </div>
+
+                    <div class="input-group">
+                        <textarea id="descricao" name="descricao" rows="5" required>{{ ticket.descricao }}</textarea>
+                        <label for="descricao">Descrição Detalhada</label>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="prioridade" style="position: static; transform: none; font-size: 14px; color: var(--text-color); margin-bottom: 5px; display: block;">Prioridade</label>
+                        <select id="prioridade" name="prioridade">
+                            <option value="BAIXA" {% if ticket.prioridade == 'BAIXA' %}selected{% endif %}>Baixa</option>
+                            <option value="MEDIA" {% if ticket.prioridade == 'MEDIA' %}selected{% endif %}>Média</option>
+                            <option value="ALTA" {% if ticket.prioridade == 'ALTA' %}selected{% endif %}>Alta</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="status" style="position: static; transform: none; font-size: 14px; color: var(--text-color); margin-bottom: 5px; display: block;">Status</label>
+                        <select id="status" name="status">
+                            <option value="ABERTO" {% if ticket.status == 'ABERTO' %}selected{% endif %}>Aberto</option>
+                            <option value="FECHADO" {% if ticket.status == 'FECHADO' %}selected{% endif %}>Fechado</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="submit" class="login-button" style="flex: 1;">
+                            💾 Salvar Alterações
+                        </button>
+                        <a href="{% url 'ticket:home' %}" class="login-button" style="flex: 1; background: #6c757d; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">
+                            ❌ Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

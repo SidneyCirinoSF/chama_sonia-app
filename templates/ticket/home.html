@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChamaSonia - Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-layout">
+        
+        <aside class="sidebar">
+            <h2 class="logo-text">ChamaSonia</h2>
+            
+            <!-- Mostra info do usuário logado -->
+            <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                <strong>👋 Olá, {{ user.first_name }}!</strong>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'ticket:home' %}" class="nav-button active">
+                    🏠 Home
+                </a>
+                <a href="#criar-chamado" class="nav-button" id="create-call-btn">
+                    ✍️ Criar Chamado
+                </a>
+            </nav>
+
+            <!-- Mude para usar a URL de logout do Django -->
+            <!-- Logout correto -->
+            <a href="{% url 'user:logout' %}" class="logout-button">
+                ➡️ Sair
+            </a>
+        </aside>
+
+        <main class="main-content">
+            <h1 class="page-title">Dashboard de Chamados</h1>
+                    
+            <section id="call-list-section" class="content-section active">
+                <h2 class="section-subtitle">Chamados Atuais</h2>
+                <div class="calls-grid">
+                    
+                    <!-- LOOP PARA CHAMADOS DO BANCO -->
+                    {% for ticket in tickets %}
+                    <div class="call-card card">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ ticket.titulo }}</h3>
+                            <div class="card-meta">
+                                <!-- CORREÇÃO: Use as classes dinâmicas em minúsculo -->
+                                <span class="priority {{ ticket.prioridade|lower }}">
+                                    {{ ticket.get_prioridade_display }}
+                                </span>
+                                <span class="status {{ ticket.status|lower }}">
+                                    {{ ticket.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            <p class="card-description">{{ ticket.descricao }}</p>
+                            <p class="card-info">Data de Criação: {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+                            {% if ticket.usuario %}
+                            <p class="card-info">Criado por: {{ ticket.usuario.email }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-actions">
+                            <!-- CORREÇÃO: Botão Editar como link -->
+                            <a href="{% url 'ticket:editar_ticket' ticket.id %}" class="action-button modify-button" style="text-decoration: none; text-align: center;">
+                                ✏️ Editar
+                            </a>
+                            
+                            <!-- CORREÇÃO: Formulário para deletar com URL específica -->
+                            <form method="POST" action="{% url 'ticket:deletar_ticket' ticket.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-button delete-button" 
+                                        onclick="return confirm('Tem certeza que deseja deletar o chamado \"{{ ticket.titulo }}\"?')">
+                                    🗑️ Deletar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <!-- Se não houver tickets -->
+                    <div class="no-tickets">
+                        <p>Nenhum chamado encontrado. Crie o primeiro!</p>
+                    </div>
+                    {% endfor %}
+                    
+                </div>
+            </section>
+
+            <section id="create-call-section" class="content-section">
+                <h2 class="section-subtitle">Criar Novo Chamado</h2>
+                <div class="card form-card">
+                    <!-- FORMULÁRIO DJANGO - SEM ACTION, ENVIA PARA A URL ATUAL -->
+                    <form method="POST" class="default-form">
+                        {% csrf_token %}
+                        
+                        <div class="input-group">
+                            <input type="text" id="call_title" name="titulo" required>
+                            <label for="call_title">Título do Chamado</label>
+                        </div>
+
+                        <div class="input-group">
+                            <textarea id="call_description" name="descricao" rows="5" required></textarea>
+                            <label for="call_description">Descrição Detalhada</label>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="call_priority" style="position: static; transform: none; font-size: 14px; color: var(--text-color); margin-bottom: 5px; display: block;">Prioridade</label>
+                            <select id="call_priority" name="prioridade">
+                                <option value="BAIXA">Baixa</option>
+                                <option value="MEDIA" selected>Média</option>
+                                <option value="ALTA">Alta</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="login-button">Enviar Chamado</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // JS para trocar entre as seções
+        document.getElementById('create-call-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.nav-button').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            document.getElementById('call-list-section').classList.remove('active');
+            document.getElementById('create-call-section').classList.add('active');
+        });
+
+        // Seletor fixo para evitar problemas com template tags
+        var homeButton = document.querySelector('a[href="{% url 'ticket:home' %}"]');
+        if (homeButton) {
+            homeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-button').forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+
+                document.getElementById('create-call-section').classList.remove('active');
+                document.getElementById('call-list-section').classList.add('active');
+            });
+        }
+
+        // Mensagens do Django (feedback de sucesso/erro)
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message }}");
+            {% endfor %}
+        {% endif %}
+    </script>
+</body>
+</html>
