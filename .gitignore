@@ -1,0 +1,54 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Banco de dados local ---
+db.sqlite3
+
+# Arquivos de log
+*.log
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+
+# --- Virtualenv ---
+venv/
+.env/
+ENV/
+.venv/
+
+# --- Django ---
+# Static e media gerados (caso venham a existir)
+static/
+staticfiles/
+media/
+
+# Migrations (exceto __init__.py)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Arquivos de configurações privadas
+.env
+settings_local.py
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Testes / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build
+build/
+dist/
+*.egg-info/
